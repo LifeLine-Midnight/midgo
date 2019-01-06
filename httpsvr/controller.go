@@ -20,7 +20,7 @@ type ctrlMethodInfo struct {
 // 利用反射自动获取其中的函数
 // 例如 TestController 的 GetData 方法
 // 会被映射为 {preURL}/test/getdata
-func (svr *MidgoSvr) AddAPIController(preURL string, ctrl interface{}) {
+func (svr *MidgoSvr) AddController(preURL string, ctrl interface{}) {
 	// 标准化 preURL 到 /xxx/xxx 这样
 	preURL = fmtPreURL(preURL)
 	t := reflect.TypeOf(ctrl)
@@ -47,7 +47,7 @@ func (svr *MidgoSvr) AddAPIController(preURL string, ctrl interface{}) {
 		method := ctrlPtrType.Method(i)
 		methodName := strings.ToLower(method.Name)
 
-		url := fmt.Sprintf("/api%s/%s/%s", preURL, ctrlName, methodName)
+		url := fmt.Sprintf("%s/%s/%s", preURL, ctrlName, methodName)
 		fmt.Println(url)
 
 		if method.Type.NumIn() == 2 && method.Type.NumOut() == 1 &&
@@ -67,14 +67,11 @@ func (svr *MidgoSvr) apiHandler(w http.ResponseWriter, r *http.Request) {
 	ctrlMethodInfo, ok := svr.urlCtrlMap[r.URL.Path]
 	fmt.Println(r.URL.Path)
 
-	var req = new(Req)
-	*req = Req(*r)
-
 	if !ok {
 		w.Write([]byte(NotFoundMsg))
 	} else {
 		ctrlObj := reflect.New(ctrlMethodInfo.ctrlStructType)
-		inputs := []reflect.Value{reflect.ValueOf(req)}
+		inputs := []reflect.Value{reflect.ValueOf(r)}
 
 		rets := ctrlObj.Method(ctrlMethodInfo.methodIdx).Call(inputs)
 		ret := rets[0].Interface().(*Resp)
