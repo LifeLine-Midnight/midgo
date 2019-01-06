@@ -5,4 +5,4 @@ import (
 )
 
 // Req http.Request 的别名
-type Req http.Request
+type Req = http.Request
