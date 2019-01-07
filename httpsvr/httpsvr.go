@@ -3,6 +3,8 @@ package httpsvr
 import (
 	"fmt"
 	"net/http"
+
+	"midgo/logger"
 )
 
 // MidgoSvr 结构定义
@@ -21,6 +23,9 @@ func GetMidgoSvr() *MidgoSvr {
 func (svr *MidgoSvr) Run(ipAddr string, port uint32) {
 	http.HandleFunc("/", svr.apiHandler)
 	host := fmt.Sprintf("%s:%d", ipAddr, port)
-	fmt.Printf("Server run %s\n", host)
-	http.ListenAndServe(host, nil)
+	logger.Info("Server run at %s", host)
+	err := http.ListenAndServe(host, nil)
+	if err != nil {
+		logger.Error("err: %s", err.Error())
+	}
 }

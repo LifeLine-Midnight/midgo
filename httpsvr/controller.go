@@ -3,6 +3,7 @@ package httpsvr
 import (
 	"encoding/json"
 	"fmt"
+	"midgo/logger"
 	"net/http"
 	"reflect"
 	"strings"
@@ -48,7 +49,7 @@ func (svr *MidgoSvr) AddController(preURL string, ctrl interface{}) {
 		methodName := strings.ToLower(method.Name)
 
 		url := fmt.Sprintf("%s/%s/%s", preURL, ctrlName, methodName)
-		fmt.Println(url)
+		logger.Info("ctrl url register: %s", url)
 
 		if method.Type.NumIn() == 2 && method.Type.NumOut() == 1 &&
 			method.Type.In(1) == reqType && method.Type.Out(0) == resType {
@@ -65,7 +66,7 @@ func (svr *MidgoSvr) AddController(preURL string, ctrl interface{}) {
 
 func (svr *MidgoSvr) apiHandler(w http.ResponseWriter, r *http.Request) {
 	ctrlMethodInfo, ok := svr.urlCtrlMap[r.URL.Path]
-	fmt.Println(r.URL.Path)
+	logger.Info("[%s] %s", r.Method, r.URL.Path)
 
 	if !ok {
 		w.Write([]byte(NotFoundMsg))
